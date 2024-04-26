@@ -1,4 +1,4 @@
-package gotops
+package enet
 
 // #cgo !windows pkg-config: libenet
 // #cgo windows CFLAGS: -Ienet/include/

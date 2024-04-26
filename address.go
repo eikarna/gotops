@@ -1,4 +1,4 @@
-package gotops
+package enet
 
 import (
 	"unsafe"

@@ -1,4 +1,4 @@
-package gotops
+package enet
 
 // #include <enet/enet.h>
 import "C"

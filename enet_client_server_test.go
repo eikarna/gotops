@@ -2,7 +2,7 @@ package gotops_test
 
 import (
 	"fmt"
-	"github.com/eikarna/gotps"
+	"github.com/eikarna/gotops"
 	"log"
 )
 

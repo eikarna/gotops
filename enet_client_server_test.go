@@ -2,7 +2,7 @@ package gotops_test
 
 import (
 	"fmt"
-	"github.com/codecat/go-enet"
+	"github.com/eikarna/gotps"
 	"log"
 )
 

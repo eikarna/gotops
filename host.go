@@ -66,6 +66,11 @@ func (host *enetHost) CompressWithRangeCoder() error {
 	return nil
 }
 
+func (host *enetHost) EnableChecksum() {
+	host.cHost.checksum = C.ENetChecksumCallback(C.enet_crc32)
+	return
+}
+
 // NewHost creats a host for communicating to peers
 func NewHost(addr Address, peerCount, channelLimit uint64, incomingBandwidth, outgoingBandwidth uint32) (Host, error) {
 	var cAddr *C.struct__ENetAddress

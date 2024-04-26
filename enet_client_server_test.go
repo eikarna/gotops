@@ -1,4 +1,4 @@
-package gotops_test
+package enet_test
 
 import (
 	"fmt"

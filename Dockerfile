@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.19
+ARG GO_VERSION=1.22.2
 
 FROM golang:${GO_VERSION}
 
@@ -18,6 +18,6 @@ RUN apt update && \
 # Ensure we can find enet at runtime.
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
-RUN mkdir -p /go-enet
-WORKDIR /go-enet
+RUN mkdir -p /gotops
+WORKDIR /gotops
 COPY . .

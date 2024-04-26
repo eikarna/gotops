@@ -1,4 +1,4 @@
-# gotps
+# gotops
 Enet bindings in Go for Growtopia Private Server using cgo. Based on [codecat/go-enet](https://github.com/codecat/go-enet)
 
 ## Installation
@@ -10,12 +10,12 @@ First, you might need to install enet as a dependency:
 * **MacOS**: Install the enet package with brew: `brew install enet`
 
 ```
-$ go get github.com/eikarna/gotps
+$ go get github.com/eikarna/gotops
 ```
 
 ## Usage
 ```go
-import "github.com/eikarna/gotps"
+import "github.com/eikarna/gotops"
 ```
 
 The API is mostly the same as the C API, except it's more object-oriented.
@@ -27,7 +27,7 @@ This is a basic server example that responds to packets `"ping"` and `"bye"`.
 package main
 
 import (
-	"github.com/eikarna/gotps"
+	"github.com/eikarna/gotops"
 	"github.com/codecat/go-libs/log"
 )
 
@@ -99,7 +99,7 @@ This is a basic client example that sends a ping to the server every second that
 package main
 
 import (
-	"github.com/eikarna/gotps"
+	"github.com/eikarna/gotops"
 	"github.com/codecat/go-libs/log"
 )
 

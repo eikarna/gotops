@@ -17,6 +17,7 @@ type Host interface {
 	BroadcastBytes(data []byte, channel uint8, flags PacketFlags) error
 	BroadcastPacket(packet Packet, channel uint8) error
 	BroadcastString(str string, channel uint8, flags PacketFlags) error
+	EnableChecksum()
 }
 
 type enetHost struct {

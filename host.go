@@ -18,10 +18,15 @@ type Host interface {
 	BroadcastPacket(packet Packet, channel uint8) error
 	BroadcastString(str string, channel uint8, flags PacketFlags) error
 	EnableChecksum()
+	ConnectedPeers() int
 }
 
 type enetHost struct {
 	cHost *C.struct__ENetHost
+}
+
+func (host *enetHost) ConnectedPeers() int {
+	return int(host.cHost.connectedPeers)
 }
 
 func (host *enetHost) Destroy() {

@@ -10,7 +10,7 @@ COPY . .
 # Installs to: /usr/local/lib/libenet.so
 RUN apt update && \
     apt install -y autoconf libtool && \
-    cd /gotops/enet && \
+    cd enet && \
     autoreconf -vfi && \
     ./configure && make && make install
 

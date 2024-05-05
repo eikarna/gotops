@@ -19,6 +19,8 @@ type Host interface {
 	BroadcastString(str string, channel uint8, flags PacketFlags) error
 	EnableChecksum()
 	ConnectedPeers() int
+	UsingNewPacketForServer(state bool)
+	UsingNewPacket(state bool)
 }
 
 type enetHost struct {
@@ -31,6 +33,22 @@ func (host *enetHost) ConnectedPeers() int {
 
 func (host *enetHost) Destroy() {
 	C.enet_host_destroy(host.cHost)
+}
+
+func (host *enetHost) UsingNewPacketForServer(apakahiya bool) {
+	if apakahiya {
+		host.cHost.usingNewPacketForServer = 1
+	} else {
+		host.cHost.usingNewPacketForServer = 0
+	}
+}
+
+func (host *enetHost) UsingNewPacket(apakahiya bool) {
+	if apakahiya {
+		host.cHost.usingNewPacket = 1
+	} else {
+		host.cHost.usingNewPacket = 0
+	}
 }
 
 func (host *enetHost) Service(timeout uint32) Event {

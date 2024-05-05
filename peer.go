@@ -39,6 +39,7 @@ type Peer interface {
 	//
 	// http://enet.bespin.org/structENetPeer.html#a1873959810db7ac7a02da90469ee384e
 	GetData() []byte
+	PeerTimeout(timeoutLimit, timeoutMinimum, timeoutMaximum uint32)
 }
 
 type enetPeer struct {
@@ -69,6 +70,15 @@ func (peer enetPeer) DisconnectLater(data uint32) {
 	C.enet_peer_disconnect_later(
 		peer.cPeer,
 		(C.enet_uint32)(data),
+	)
+}
+
+func (peer enetPeer) PeerTimeout(timeoutLimit, timeoutMin, timeoutMax uint32) {
+	C.enet_peer_timeout(
+		peer.cPeer,
+		(C.enet_uint32)(timeoutLimit),
+		(C.enet_uint32)(timeoutMin),
+		(C.enet_uint32)(timeoutMax),
 	)
 }
 

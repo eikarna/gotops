@@ -1,15 +1,30 @@
-# gotops
+# GotoPS
 Enet bindings in Go for Growtopia Private Server using cgo. Based on [codecat/go-enet](https://github.com/codecat/go-enet)
 
 ## Installation
-First, you might need to install enet as a dependency:
+First, you might need to build enet from enet/ directory and install it as library:
 
-* **Windows**: Nothing to do - should work out of the box with the supplied headers and library.
-* **Linux**: Install the enet development package with your package manager.
-	* On Debian-based systems: `apt install libenet-dev`
+* **Windows**: I don't have PC/Laptop, also no tester. Try it by yourself.
+* **Linux**: Install the enet library with make.
+```sh
+git clone --recurse-submodules https://github.com/eikarna/gotops
+cd gotops/enet
+autoreconf -vfi
+./configure && make && sudo make install
+```
+* **Termux**: Same as Linux, but after run `autoreconf -vfi`:
+```sh
+./configure
+make
+make prefix=/data/data/com.termux/files/usr libdir=/data/data/com.termux/files/usr/lib install
+```
+If you got warning message: `libtool: warning: remember to run 'libtool --finish /usr/local/lib'`, just run:
+```sh
+libtool --finish /data/data/com.termux/files/usr/lib
+```
 * **MacOS**: Install the enet package with brew: `brew install enet`
 
-```
+```sh
 $ go get github.com/eikarna/gotops
 ```
 
@@ -35,8 +50,8 @@ func main() {
 	// Initialize enet
 	enet.Initialize()
 
-	// Create a host listening on 0.0.0.0:8095
-	host, err := enet.NewHost(enet.NewListenAddress(8095), 32, 1, 0, 0)
+	// Create a host listening on 0.0.0.0:17091
+	host, err := enet.NewHost(enet.NewListenAddress(17091), 1024, 1, 0, 0)
 	if err != nil {
 		log.Error("Couldn't create host: %s", err.Error())
 		return
@@ -115,7 +130,7 @@ func main() {
 	}
 
 	// Connect the client host to the server
-	peer, err := client.Connect(enet.NewAddress("127.0.0.1", 8095), 1, 0)
+	peer, err := client.Connect(enet.NewAddress("127.0.0.1", 17091), 1, 0)
 	if err != nil {
 		log.Error("Couldn't connect: %s", err.Error())
 		return

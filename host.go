@@ -22,10 +22,17 @@ type Host interface {
 	ConnectedPeers() []enetPeer
 	UsingNewPacketForServer(state bool)
 	UsingNewPacket(state bool)
+	GetAddress() Address
 }
 
 type enetHost struct {
 	cHost *C.struct__ENetHost
+}
+
+func (host *enetHost) GetAddress() Address {
+	return &enetAddress{
+		cAddr: host.cHost.address,
+	}
 }
 
 func (host enetHost) ConnectedPeers() []enetPeer {
@@ -44,16 +51,16 @@ func (host *enetHost) Destroy() {
 	C.enet_host_destroy(host.cHost)
 }
 
-func (host *enetHost) UsingNewPacketForServer(apakahiya bool) {
-	if apakahiya {
+func (host *enetHost) UsingNewPacketForServer(state bool) {
+	if state {
 		host.cHost.usingNewPacketForServer = 1
 	} else {
 		host.cHost.usingNewPacketForServer = 0
 	}
 }
 
-func (host *enetHost) UsingNewPacket(apakahiya bool) {
-	if apakahiya {
+func (host *enetHost) UsingNewPacket(state bool) {
+	if state {
 		host.cHost.usingNewPacket = 1
 	} else {
 		host.cHost.usingNewPacket = 0

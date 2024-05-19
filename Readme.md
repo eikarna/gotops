@@ -4,7 +4,14 @@ Enet bindings in Go for Growtopia Private Server using cgo. Based on [codecat/go
 ## Installation
 First, you might need to build enet from enet/ directory and install it as library:
 
-* **Windows**: I don't have PC/Laptop, also no tester. Try it by yourself.
+* **Windows**: Build the enet dynamic library (.dll) with Code::Blocks. (Tested with: TDM-GCC 10.3.0 installed, Windows 11, and Intel Core I7-6700HQ).
+```sh
+git clone --recurse-submodules https://github.com/eikarna/gotops
+cd gotops/enet
+codeblocks --no-splash-screen --build --target="Release" enet_dll.cbp
+```
+If you got error message: 'IP_TTL' undeclared (first use in this function), then just add `#include <Ws2tcpip.h>` to the top of win32.c.
+Got Any Error again? just try to fix it by yourself.
 * **Linux**: Install the enet library with make.
 ```sh
 git clone --recurse-submodules https://github.com/eikarna/gotops

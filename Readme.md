@@ -8,10 +8,15 @@ First, you might need to build enet from enet/ directory and install it as libra
 ```sh
 git clone --recurse-submodules https://github.com/eikarna/gotops
 cd gotops/enet
-codeblocks --no-splash-screen --build --target="Release" enet_dll.cbp
+"C:\Program Files\CodeBlocks\codeblocks.exe" /na /nd enet_dll.cbp
 ```
 If you got error message: 'IP_TTL' undeclared (first use in this function), just add `#include <Ws2tcpip.h>` to the top of win32.c.
+
+#### REMEMBER TO BUILD TARGET "Release" ONLY.
+
 Got Any Error again? just try to fix it by yourself.
+
+After successfully build, you must copy build output files (include: libenet.a, libenet.dll, libenet.def) to your root project. And then you can use this go module without any problem.
 * **Linux**: Install the enet library with make.
 ```sh
 git clone --recurse-submodules https://github.com/eikarna/gotops

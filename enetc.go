@@ -3,7 +3,7 @@ package enet
 // #cgo !windows CFLAGS: -Ienet/include/
 // #cgo !windows LDFLAGS: -Lenet/ -lenet
 // #cgo windows CFLAGS: -Ienet/include/
-// #cgo windows LDFLAGS: -Lenet/ -lenet -lWs2_32 -lWinmm
+// #cgo windows LDFLAGS: -Lenet/bin/Release -lenet -lWs2_32 -lWinmm
 // #include <enet/enet.h>
 import "C"
 import "fmt"

@@ -9,6 +9,21 @@ import (
 	"unsafe"
 )
 
+type EnetPeerState int
+
+const (
+	Disconnected EnetPeerState = iota
+	Connecting
+	AcknowledgingConnect
+	ConnectionPending
+	ConnectionSucceeded
+	Connected
+	DisconnectLater
+	Disconnecting
+	AcknowledgingDisconnect
+	Zombie
+)
+
 // Peer is a peer which data packets may be sent or received from
 type Peer interface {
 	GetAddress() Address
@@ -40,10 +55,44 @@ type Peer interface {
 	// http://enet.bespin.org/structENetPeer.html#a1873959810db7ac7a02da90469ee384e
 	GetData() []byte
 	PeerTimeout(timeoutLimit, timeoutMinimum, timeoutMaximum uint32)
+	GetConnectID() uint32
+	State() EnetPeerState
 }
 
 type enetPeer struct {
 	cPeer *C.struct__ENetPeer
+}
+
+func (peer enetPeer) State() EnetPeerState {
+	switch peer.cPeer.state {
+	case C.ENET_PEER_STATE_DISCONNECTED:
+		return Disconnected
+	case C.ENET_PEER_STATE_CONNECTING:
+		return Connecting
+	case C.ENET_PEER_STATE_ACKNOWLEDGING_CONNECT:
+		return AcknowledgingConnect
+	case C.ENET_PEER_STATE_CONNECTION_PENDING:
+		return ConnectionPending
+	case C.ENET_PEER_STATE_CONNECTION_SUCCEEDED:
+		return ConnectionSucceeded
+	case C.ENET_PEER_STATE_CONNECTED:
+		return Connected
+	case C.ENET_PEER_STATE_DISCONNECT_LATER:
+		return DisconnectLater
+	case C.ENET_PEER_STATE_DISCONNECTING:
+		return Disconnecting
+	case C.ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT:
+		return AcknowledgingDisconnect
+	case C.ENET_PEER_STATE_ZOMBIE:
+		return Zombie
+	default:
+		// Handle unexpected states
+		return Disconnected // or another appropriate default
+	}
+}
+
+func (peer enetPeer) GetConnectID() uint32 {
+	return uint32(peer.cPeer.connectID)
 }
 
 func (peer enetPeer) GetAddress() Address {

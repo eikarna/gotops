@@ -4,6 +4,7 @@ package enet
 import "C"
 import (
 	"errors"
+	"unsafe"
 )
 
 // Host for communicating with peers
@@ -18,7 +19,7 @@ type Host interface {
 	BroadcastPacket(packet Packet, channel uint8) error
 	BroadcastString(str string, channel uint8, flags PacketFlags) error
 	EnableChecksum()
-	ConnectedPeers() int
+	ConnectedPeers() []enetPeer
 	UsingNewPacketForServer(state bool)
 	UsingNewPacket(state bool)
 }
@@ -27,8 +28,16 @@ type enetHost struct {
 	cHost *C.struct__ENetHost
 }
 
-func (host *enetHost) ConnectedPeers() int {
-	return int(host.cHost.connectedPeers)
+func (host enetHost) ConnectedPeers() []enetPeer {
+	var connectedList = make([]enetPeer, 0)
+	for i := 0; i < int(host.cHost.peerCount); i++ {
+		currentPeer := (*C.ENetPeer)(unsafe.Pointer(uintptr(unsafe.Pointer(host.cHost.peers)) + uintptr(i)*C.sizeof_ENetPeer))
+		if currentPeer.state != C.ENET_PEER_STATE_CONNECTED {
+			continue
+		}
+		connectedList = append(connectedList, enetPeer{cPeer: currentPeer})
+	}
+	return connectedList
 }
 
 func (host *enetHost) Destroy() {

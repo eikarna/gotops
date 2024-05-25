@@ -3,6 +3,7 @@ package enet
 // #include <enet/enet.h>
 import "C"
 import (
+	"encoding/binary"
 	"errors"
 	"unsafe"
 )
@@ -74,4 +75,43 @@ func NewPacket(data []byte, flags PacketFlags) (Packet, error) {
 	return enetPacket{
 		cPacket: packet,
 	}, nil
+}
+
+func GetMessageFromPacket(packet Packet) string {
+	gamePacket := packet.GetData()
+	copy(gamePacket[len(gamePacket)-1:], []byte{0})
+	return string(gamePacket[4:])
+}
+
+func SendPacket(peer Peer, gameMessageType int32, strData string) error {
+	packetSize := 5 + len(strData)
+	netPacket := make([]byte, packetSize)
+
+	binary.LittleEndian.PutUint32(netPacket[0:4], uint32(gameMessageType))
+	if strData != "" {
+		copy(netPacket[4:4+len(strData)], []byte(strData))
+	}
+	netPacket[4+len(strData)] = 0
+	packet, err := NewPacket(netPacket, PacketFlagReliable)
+	if err != nil {
+		return errors.New("unable to create packet on SendPacket.")
+	}
+	peer.SendPacket(packet, 0)
+	return nil
+}
+
+func SendRawPacket(peer Peer, gameMessageType int32, data []byte) error {
+	packetSize := 5 + len(data)
+	netPacket := make([]byte, packetSize)
+	binary.LittleEndian.PutUint32(netPacket[0:4], uint32(gameMessageType))
+	if data != nil {
+		copy(netPacket[4:4+len(data)], data)
+	}
+	netPacket[4+len(data)] = 0
+	packet, err := NewPacket(netPacket, PacketFlagReliable)
+	if err != nil {
+		return errors.New("unable to create packet on SendRawPacket.")
+	}
+	peer.SendPacket(packet, 0)
+	return nil
 }

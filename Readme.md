@@ -1,6 +1,9 @@
 # GotoPS
 Enet bindings in Go for Growtopia Private Server using cgo. Based on [codecat/go-enet](https://github.com/codecat/go-enet)
 
+> [!TIP]
+> Want to see an example of a server that uses this library? Look at [gotops](https://github.com/eikarna/gotps).
+
 ## Installation
 First, you might need to build enet from enet/ directory and install it as library:
 

@@ -1,3 +1,4 @@
 [submodule "enet"]
 	path = enet
-	url = https://github.com/ZTzTopia/ENet
+	url = https://github.com/eikarna/enet
+	branch = master

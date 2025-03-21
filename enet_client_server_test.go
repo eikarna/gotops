@@ -98,7 +98,7 @@ func Example_clientServer() {
 	enet.Deinitialize()
 
 	// Output:
-	// enet version: 1.3.17
+	// enet version: 1.3.18
 	// [SERVER] new connection from client
 	// [CLIENT] sending packet to server
 	// [SERVER] received packet from client: hello world

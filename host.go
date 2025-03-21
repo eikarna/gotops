@@ -25,16 +25,19 @@ type Host interface {
 	GetAddress() Address
 }
 
+// enetHost is the host for communicating with peers
 type enetHost struct {
 	cHost *C.struct__ENetHost
 }
 
+// GetAddress return the address of the host
 func (host *enetHost) GetAddress() Address {
 	return &enetAddress{
 		cAddr: host.cHost.address,
 	}
 }
 
+// ConnectedPeers return a list of connected peers
 func (host enetHost) ConnectedPeers() []enetPeer {
 	var connectedList = make([]enetPeer, 0)
 	for i := 0; i < int(host.cHost.peerCount); i++ {
@@ -47,10 +50,12 @@ func (host enetHost) ConnectedPeers() []enetPeer {
 	return connectedList
 }
 
+// Destroy the host
 func (host *enetHost) Destroy() {
 	C.enet_host_destroy(host.cHost)
 }
 
+// UsingNewPacketForServer set the host to use new packet (for server)
 func (host *enetHost) UsingNewPacketForServer(state bool) {
 	if state {
 		host.cHost.usingNewPacketForServer = 1
@@ -59,6 +64,7 @@ func (host *enetHost) UsingNewPacketForServer(state bool) {
 	}
 }
 
+// UsingNewPacket set the host to use new packet
 func (host *enetHost) UsingNewPacket(state bool) {
 	if state {
 		host.cHost.usingNewPacket = 1
@@ -67,6 +73,7 @@ func (host *enetHost) UsingNewPacket(state bool) {
 	}
 }
 
+// Service the host
 func (host *enetHost) Service(timeout uint32) Event {
 	ret := &enetEvent{}
 	C.enet_host_service(
@@ -77,6 +84,7 @@ func (host *enetHost) Service(timeout uint32) Event {
 	return ret
 }
 
+// Connect to a foreign host
 func (host *enetHost) Connect(addr Address, channelCount int, data uint32) (Peer, error) {
 	peer := C.enet_host_connect(
 		host.cHost,
@@ -94,6 +102,7 @@ func (host *enetHost) Connect(addr Address, channelCount int, data uint32) (Peer
 	}, nil
 }
 
+// CompressWithRangeCoder set the packet compressor to default range coder
 func (host *enetHost) CompressWithRangeCoder() error {
 	status := C.enet_host_compress_with_range_coder(host.cHost)
 
@@ -106,19 +115,21 @@ func (host *enetHost) CompressWithRangeCoder() error {
 	return nil
 }
 
+// EnableChecksum enable checksum crc32 for host
 func (host *enetHost) EnableChecksum() {
 	host.cHost.checksum = C.ENetChecksumCallback(C.enet_crc32)
 	return
 }
 
-// NewHost creats a host for communicating to peers
-func NewHost(addr Address, peerCount, channelLimit uint64, incomingBandwidth, outgoingBandwidth uint32) (Host, error) {
+// NewHost create a host for communicating to peers
+func NewHost(addressType ENetAddressType, addr Address, peerCount, channelLimit uint64, incomingBandwidth, outgoingBandwidth uint32) (Host, error) {
 	var cAddr *C.struct__ENetAddress
 	if addr != nil {
 		cAddr = &(addr.(*enetAddress)).cAddr
 	}
 
 	host := C.enet_host_create(
+		C.ENetAddressType(addressType),
 		cAddr,
 		(C.size_t)(peerCount),
 		(C.size_t)(channelLimit),
@@ -135,6 +146,7 @@ func NewHost(addr Address, peerCount, channelLimit uint64, incomingBandwidth, ou
 	}, nil
 }
 
+// BroadcastBytes send a byte array to all connected peers
 func (host *enetHost) BroadcastBytes(data []byte, channel uint8, flags PacketFlags) error {
 	packet, err := NewPacket(data, flags)
 	if err != nil {
@@ -143,6 +155,7 @@ func (host *enetHost) BroadcastBytes(data []byte, channel uint8, flags PacketFla
 	return host.BroadcastPacket(packet, channel)
 }
 
+// BroadcastPacket send a packet to all connected peers
 func (host *enetHost) BroadcastPacket(packet Packet, channel uint8) error {
 	C.enet_host_broadcast(
 		host.cHost,
@@ -152,6 +165,7 @@ func (host *enetHost) BroadcastPacket(packet Packet, channel uint8) error {
 	return nil
 }
 
+// BroadcastString send a string to all connected peers
 func (host *enetHost) BroadcastString(str string, channel uint8, flags PacketFlags) error {
 	packet, err := NewPacket([]byte(str), flags)
 	if err != nil {

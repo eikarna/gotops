@@ -12,12 +12,12 @@ import (
 	enet "github.com/eikarna/gotops"
 )
 
-func TestPeerData(t *testing.T) {
+func TestPeerData_ipv6(t *testing.T) {
 	testData := []byte{0x1, 0x2, 0x3}
 
 	// peer is connected to our server.
 	// events will produce events as the server receives them.
-	peer, events := createServerClient(t)
+	peer, events := createServerClient_ipv6(t)
 
 	// Wait for the server to respond with a connection.
 	ev := <-events
@@ -27,7 +27,7 @@ func TestPeerData(t *testing.T) {
 
 	// Set some data against our peer and immediately check it's there.
 	ev.GetPeer().SetData(testData)
-	assertPeerData(t, ev.GetPeer(), testData, "immediate after set")
+	assertPeerData_ipv6(t, ev.GetPeer(), testData, "immediate after set")
 
 	// Send a message to the server.
 	if err := peer.SendString("testmessage", 0, enet.PacketFlagReliable); err != nil {
@@ -38,23 +38,23 @@ func TestPeerData(t *testing.T) {
 	// server-side peer associated with this event has the data
 	// we set previously.
 	ev = <-events
-	assertPeerData(t, ev.GetPeer(), testData, "on packet received")
+	assertPeerData_ipv6(t, ev.GetPeer(), testData, "on packet received")
 
 	t.Run("clear-data", func(t *testing.T) {
 		ev.GetPeer().SetData(nil)
-		assertPeerData(t, ev.GetPeer(), nil, "nil set")
+		assertPeerData_ipv6(t, ev.GetPeer(), nil, "nil set")
 	})
 
 	t.Run("empty-slice", func(t *testing.T) {
 		ev.GetPeer().SetData([]byte{})
-		assertPeerData(t, ev.GetPeer(), []byte{}, "empty set")
+		assertPeerData_ipv6(t, ev.GetPeer(), []byte{}, "empty set")
 	})
 
 	// Check that our data stored in C survives garbage collection.
 	t.Run("survives-gc", func(t *testing.T) {
 		ev.GetPeer().SetData([]byte{1, 2, 3})
 		runtime.GC()
-		assertPeerData(t, ev.GetPeer(), []byte{1, 2, 3}, "after GC")
+		assertPeerData_ipv6(t, ev.GetPeer(), []byte{1, 2, 3}, "after GC")
 	})
 
 	// Sniffs for a potential memory leak in our set data implementation.
@@ -67,7 +67,7 @@ func TestPeerData(t *testing.T) {
 		}
 
 		noOfIncreases := 0
-		last := currentMemory(t)
+		last := currentMemory_ipv6(t)
 
 		// Assign a large string (10MB) to data over and over again, checking
 		// for continuous increases in mem usage, with some threshold.
@@ -76,7 +76,7 @@ func TestPeerData(t *testing.T) {
 
 			// Detect a memory leak by checking if we're using more than 1MB last than the
 			// previous for too many iterations.
-			now := currentMemory(t)
+			now := currentMemory_ipv6(t)
 
 			if now-last > 1024 {
 				noOfIncreases++
@@ -95,7 +95,7 @@ func TestPeerData(t *testing.T) {
 	})
 }
 
-func assertPeerData(t testing.TB, peer enet.Peer, expected []byte, msg string) {
+func assertPeerData_ipv6(t testing.TB, peer enet.Peer, expected []byte, msg string) {
 	t.Helper()
 
 	actual := peer.GetData()
@@ -116,7 +116,7 @@ func assertPeerData(t testing.TB, peer enet.Peer, expected []byte, msg string) {
 // createServerClient creates a dummy enet server and client. The returned
 // peer can be used to send messages to the server, and the blocking events
 // channel returned will be given each event as the server picks it up.
-func createServerClient(t *testing.T) (clientConn enet.Peer, serverEvents <-chan enet.Event) {
+func createServerClient_ipv6(t *testing.T) (clientConn enet.Peer, serverEvents <-chan enet.Event) {
 	port := getFreePort()
 
 	done := make(chan bool, 0)
@@ -128,12 +128,12 @@ func createServerClient(t *testing.T) (clientConn enet.Peer, serverEvents <-chan
 	})
 
 	// Create new listen address
-	address := enet.NewListenAddress(enet.ENET_ADDRESS_TYPE_IPV4, port)
+	address := enet.NewListenAddress(enet.ENET_ADDRESS_TYPE_IPV6, port)
 	// Make host is bind to any address
-	address.BuildAny(enet.ENET_ADDRESS_TYPE_IPV4)
+	address.BuildAny(enet.ENET_ADDRESS_TYPE_IPV6)
 
 	// Create a server and continuously service it, exposing any captured events.
-	server, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV4, address, 10, 1, 0, 0)
+	server, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV6, address, 10, 1, 0, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func createServerClient(t *testing.T) (clientConn enet.Peer, serverEvents <-chan
 	}()
 
 	// Create a client and continuously service it in the background.
-	client, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV4, nil, 1, 1, 0, 0)
+	client, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV6, nil, 1, 1, 0, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +173,7 @@ func createServerClient(t *testing.T) (clientConn enet.Peer, serverEvents <-chan
 	}()
 
 	// Connect to our server.
-	peer, err := client.Connect(enet.NewAddress(enet.ENET_ADDRESS_TYPE_IPV4, "localhost", port), 1, 0)
+	peer, err := client.Connect(enet.NewAddress(enet.ENET_ADDRESS_TYPE_IPV6, "::1", port), 1, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,20 +181,20 @@ func createServerClient(t *testing.T) (clientConn enet.Peer, serverEvents <-chan
 	return peer, events
 }
 
-var port uint16 = 49152
+var port_ipv6 uint16 = 49153
 
 // getFreePort returns a unique private port. Note this doesn't guarantee
 // it's free, but should be good enough from within docker tests.
-func getFreePort() uint16 {
+func getFreePort_ipv6() uint16 {
 	port++
-	return port
+	return port_ipv6
 }
 
 // currentMemory returns the memory usage of the current process according to
 // the OS. This uses linux's proc FS to give a rough estimate based on VmSize.
 // Note we don't want to use runtime.MemStats here as we're looking for the
 // total memory (including C allocations).
-func currentMemory(t testing.TB) int {
+func currentMemory_ipv6(t testing.TB) int {
 	// GC to give a stable measure.
 	runtime.GC()
 

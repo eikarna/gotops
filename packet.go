@@ -39,14 +39,17 @@ type Packet interface {
 	GetFlags() PacketFlags
 }
 
+// enetPacket is a wrapper around the C ENetPacket struct
 type enetPacket struct {
 	cPacket *C.struct__ENetPacket
 }
 
+// Destroy frees the memory associated with the packet
 func (packet enetPacket) Destroy() {
 	C.enet_packet_destroy(packet.cPacket)
 }
 
+// GetData returns the data associated with the packet
 func (packet enetPacket) GetData() []byte {
 	return C.GoBytes(
 		unsafe.Pointer(packet.cPacket.data),
@@ -54,6 +57,7 @@ func (packet enetPacket) GetData() []byte {
 	)
 }
 
+// GetFlags returns the flags associated with the packet
 func (packet enetPacket) GetFlags() PacketFlags {
 	return (PacketFlags)(packet.cPacket.flags)
 }
@@ -77,12 +81,14 @@ func NewPacket(data []byte, flags PacketFlags) (Packet, error) {
 	}, nil
 }
 
+// GetMessageFromPacket returns the message from a packet
 func GetMessageFromPacket(packet Packet) string {
 	gamePacket := packet.GetData()
 	copy(gamePacket[len(gamePacket)-1:], []byte{0})
 	return string(gamePacket[4:])
 }
 
+// SendPacket sends a packet to a peer
 func SendPacket(peer Peer, gameMessageType int32, strData string) error {
 	packetSize := 5 + len(strData)
 	netPacket := make([]byte, packetSize)
@@ -100,6 +106,7 @@ func SendPacket(peer Peer, gameMessageType int32, strData string) error {
 	return nil
 }
 
+// SendRawPacket sends a raw packet to a peer
 func SendRawPacket(peer Peer, gameMessageType int32, data []byte) error {
 	packetSize := 5 + len(data)
 	netPacket := make([]byte, packetSize)

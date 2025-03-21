@@ -9,8 +9,10 @@ import (
 	"unsafe"
 )
 
+// EnetPeerState represents the state of a peer
 type EnetPeerState int
 
+// EnetPeerState constants
 const (
 	Disconnected EnetPeerState = iota
 	Connecting
@@ -59,10 +61,12 @@ type Peer interface {
 	State() EnetPeerState
 }
 
+// enetPeer is an implementation of the Peer interface
 type enetPeer struct {
 	cPeer *C.struct__ENetPeer
 }
 
+// NewPeer creates a new peer from a C peer
 func (peer enetPeer) State() EnetPeerState {
 	switch peer.cPeer.state {
 	case C.ENET_PEER_STATE_DISCONNECTED:
@@ -91,16 +95,19 @@ func (peer enetPeer) State() EnetPeerState {
 	}
 }
 
+// GetConnectID returns the connect ID of a peer
 func (peer enetPeer) GetConnectID() uint32 {
 	return uint32(peer.cPeer.connectID)
 }
 
+// GetAddress returns the address of a peer
 func (peer enetPeer) GetAddress() Address {
 	return &enetAddress{
 		cAddr: peer.cPeer.address,
 	}
 }
 
+// Disconnect a peer from a host
 func (peer enetPeer) Disconnect(data uint32) {
 	C.enet_peer_disconnect(
 		peer.cPeer,
@@ -108,6 +115,7 @@ func (peer enetPeer) Disconnect(data uint32) {
 	)
 }
 
+// DisconnectNow immediately disconnects a peer from a host
 func (peer enetPeer) DisconnectNow(data uint32) {
 	C.enet_peer_disconnect_now(
 		peer.cPeer,
@@ -115,6 +123,7 @@ func (peer enetPeer) DisconnectNow(data uint32) {
 	)
 }
 
+// DisconnectLater schedules a peer for disconnection
 func (peer enetPeer) DisconnectLater(data uint32) {
 	C.enet_peer_disconnect_later(
 		peer.cPeer,
@@ -122,6 +131,7 @@ func (peer enetPeer) DisconnectLater(data uint32) {
 	)
 }
 
+// PeerTimeout sets the timeout parameters for a peer
 func (peer enetPeer) PeerTimeout(timeoutLimit, timeoutMin, timeoutMax uint32) {
 	C.enet_peer_timeout(
 		peer.cPeer,
@@ -131,6 +141,7 @@ func (peer enetPeer) PeerTimeout(timeoutLimit, timeoutMin, timeoutMax uint32) {
 	)
 }
 
+// SendBytes sends a byte slice to a peer
 func (peer enetPeer) SendBytes(data []byte, channel uint8, flags PacketFlags) error {
 	packet, err := NewPacket(data, flags)
 	if err != nil {
@@ -139,6 +150,7 @@ func (peer enetPeer) SendBytes(data []byte, channel uint8, flags PacketFlags) er
 	return peer.SendPacket(packet, channel)
 }
 
+// SendString sends a string to a peer
 func (peer enetPeer) SendString(str string, channel uint8, flags PacketFlags) error {
 	packet, err := NewPacket([]byte(str), flags)
 	if err != nil {
@@ -147,6 +159,7 @@ func (peer enetPeer) SendString(str string, channel uint8, flags PacketFlags) er
 	return peer.SendPacket(packet, channel)
 }
 
+// SendPacket sends a packet to a peer
 func (peer enetPeer) SendPacket(packet Packet, channel uint8) error {
 	C.enet_peer_send(
 		peer.cPeer,
@@ -156,6 +169,7 @@ func (peer enetPeer) SendPacket(packet Packet, channel uint8) error {
 	return nil
 }
 
+// SetData sets an arbitrary value against a peer. This is useful to attach some
 func (peer enetPeer) SetData(data []byte) {
 	if len(data) > math.MaxUint32 {
 		panic(fmt.Sprintf("maximum peer data length is uint32 (%d)", math.MaxUint32))
@@ -183,6 +197,7 @@ func (peer enetPeer) SetData(data []byte) {
 	peer.cPeer.data = unsafe.Pointer(C.CBytes(b))
 }
 
+// GetData returns an application-specific value that's been set
 func (peer enetPeer) GetData() []byte {
 	ptr := unsafe.Pointer(peer.cPeer.data)
 

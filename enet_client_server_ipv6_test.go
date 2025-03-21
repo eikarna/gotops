@@ -7,12 +7,12 @@ import (
 	enet "github.com/eikarna/gotops"
 )
 
-func Example_clientServer() {
+func Example_clientServer_ipv6() {
 	// This example demonstrates some basic usage of the enet library.
 	// Here we set up a client & server, send a message between them, then
 	// disconnect & cleanup.
 
-	port := uint16(12345)
+	port := uint16(1234)
 
 	fmt.Printf("enet version: %s\n", enet.LinkedVersion())
 
@@ -20,12 +20,12 @@ func Example_clientServer() {
 	enet.Initialize()
 
 	// Create new listen address
-	address := enet.NewListenAddress(enet.ENET_ADDRESS_TYPE_IPV4, port)
+	address := enet.NewListenAddress(enet.ENET_ADDRESS_TYPE_IPV6, port)
 	// Make host is bind to any address
-	address.BuildAny(enet.ENET_ADDRESS_TYPE_IPV4)
+	address.BuildAny(enet.ENET_ADDRESS_TYPE_IPV6)
 
 	// Make our server.
-	server, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV4, address, 32, 1, 0, 0)
+	server, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV6, address, 32, 1, 0, 0)
 	if err != nil {
 		log.Fatal(fmt.Errorf("unable to create server: %w", err))
 	}
@@ -61,13 +61,13 @@ func Example_clientServer() {
 	}()
 
 	// Make a client that will speak to the server.
-	client, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV4, nil, 32, 1, 0, 0)
+	client, err := enet.NewHost(enet.ENET_ADDRESS_TYPE_IPV6, nil, 32, 1, 0, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Connect to the server.
-	peer, err := client.Connect(enet.NewAddress(enet.ENET_ADDRESS_TYPE_IPV4, "localhost", port), 1, 0)
+	peer, err := client.Connect(enet.NewAddress(enet.ENET_ADDRESS_TYPE_IPV6, "::1", port), 1, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
